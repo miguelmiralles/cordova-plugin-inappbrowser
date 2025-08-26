@@ -1,7 +1,7 @@
 {
-  "name": "cordova-plugin-inappbrowser",
-  "version": "6.0.1-dev",
-  "description": "Cordova InAppBrowser Plugin",
+  "name": "cordova-plugin-inappbrowser-api35",
+  "version": "6.0.1-api35",
+  "description": "Cordova InAppBrowser Plugin with Android API 35 compatibility",
   "types": "./types/index.d.ts",
   "cordova": {
     "id": "cordova-plugin-inappbrowser",
@@ -11,8 +11,8 @@
       "ios"
     ]
   },
-  "repository": "github:apache/cordova-plugin-inappbrowser",
-  "bugs": "https://github.com/apache/cordova-plugin-inappbrowser/issues",
+  "repository": "github:TU_USUARIO/cordova-plugin-inappbrowser-api35",
+  "bugs": "https://github.com/TU_USUARIO/cordova-plugin-inappbrowser-api35/issues",
   "keywords": [
     "cordova",
     "in",

@@ -44,6 +44,7 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import androidx.core.view.WindowCompat;
 import android.webkit.CookieManager;
 import android.webkit.HttpAuthHandler;
 import android.webkit.JavascriptInterface;
@@ -796,15 +797,74 @@ public class InAppBrowser extends CordovaPlugin {
                 dialog.setCancelable(true);
                 dialog.setInAppBroswer(getInAppBrowser());
 
+                // Android API 35 compatibility - Enable edge-to-edge and immersive mode
+                LOG.d(LOG_TAG, "Device: " + Build.MANUFACTURER + " " + Build.MODEL + ", API: " + Build.VERSION.SDK_INT);
+                if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API 35)
+                    LOG.d(LOG_TAG, "Applying API 35 compatibility changes");
+                    WindowCompat.setDecorFitsSystemWindows(dialog.getWindow(), false);
+                    
+                    // Set immersive flags for full screen experience
+                    int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                    
+                    dialog.getWindow().getDecorView().setSystemUiVisibility(flags);
+                    
+                    // Set layout parameters for edge-to-edge
+                    WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+                    lp.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+                    dialog.getWindow().setAttributes(lp);
+                }
+
                 // Main container layout
                 LinearLayout main = new LinearLayout(cordova.getActivity());
                 main.setOrientation(LinearLayout.VERTICAL);
+
+                // Add margin-top for Android API 35 to avoid status bar overlap
+                if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API 35)
+                    // Get actual status bar height
+                    int statusBarHeight = 0;
+                    int resourceId = cordova.getActivity().getResources().getIdentifier("status_bar_height", "dimen", "android");
+                    if (resourceId > 0) {
+                        statusBarHeight = cordova.getActivity().getResources().getDimensionPixelSize(resourceId);
+                    } else {
+                        statusBarHeight = this.dpToPixels(24); // Fallback to 24dp
+                    }
+                    
+                    LinearLayout.LayoutParams mainParams = new LinearLayout.LayoutParams(
+                        LayoutParams.MATCH_PARENT, 
+                        LayoutParams.MATCH_PARENT
+                    );
+                    mainParams.setMargins(0, statusBarHeight, 0, 0); // Use actual status bar height
+                    main.setLayoutParams(mainParams);
+                    
+                    // Also add padding to ensure content doesn't overlap
+                    main.setPadding(0, statusBarHeight, 0, 0);
+                }
 
                 // Toolbar layout
                 RelativeLayout toolbar = new RelativeLayout(cordova.getActivity());
                 //Please, no more black!
                 toolbar.setBackgroundColor(toolbarColor);
-                toolbar.setLayoutParams(new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, this.dpToPixels(TOOLBAR_HEIGHT)));
+                RelativeLayout.LayoutParams toolbarParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, this.dpToPixels(TOOLBAR_HEIGHT));
+                
+                // Add margin-top for Android API 35 to ensure toolbar is below status bar
+                if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API 35)
+                    // Get actual status bar height
+                    int statusBarHeight = 0;
+                    int resourceId = cordova.getActivity().getResources().getIdentifier("status_bar_height", "dimen", "android");
+                    if (resourceId > 0) {
+                        statusBarHeight = cordova.getActivity().getResources().getDimensionPixelSize(resourceId);
+                    } else {
+                        statusBarHeight = this.dpToPixels(24); // Fallback to 24dp
+                    }
+                    toolbarParams.setMargins(0, statusBarHeight, 0, 0);
+                }
+                
+                toolbar.setLayoutParams(toolbarParams);
                 toolbar.setPadding(this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2), this.dpToPixels(2));
                 if (leftToRight) {
                     toolbar.setHorizontalGravity(Gravity.LEFT);

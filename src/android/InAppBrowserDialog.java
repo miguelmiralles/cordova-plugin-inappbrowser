@@ -46,7 +46,20 @@ public class InAppBrowserDialog extends Dialog {
             
             // Ensure system bars remain visible on API 35+
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            
+            // Samsung devices need special handling for system bar visibility
+            boolean isSamsung = Build.MANUFACTURER.equalsIgnoreCase("samsung");
+            if (isSamsung) {
+                // Samsung One UI specific approach
+                getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                );
+                getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+            } else {
+                // Standard Android approach
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            }
         }
     }
 

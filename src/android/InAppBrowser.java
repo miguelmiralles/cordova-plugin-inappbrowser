@@ -791,32 +791,20 @@ public class InAppBrowser extends CordovaPlugin {
                 dialog = new InAppBrowserDialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
                 dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                if (fullscreen) {
+                // Only apply traditional fullscreen for APIs < 35
+                if (fullscreen && Build.VERSION.SDK_INT < 35) {
                     dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 }
                 dialog.setCancelable(true);
                 dialog.setInAppBroswer(getInAppBrowser());
 
-                // Android API 35 compatibility - Enable edge-to-edge and immersive mode
-                LOG.d(LOG_TAG, "Device: " + Build.MANUFACTURER + " " + Build.MODEL + ", API: " + Build.VERSION.SDK_INT);
+                // Android API 35 compatibility - Enable edge-to-edge without hiding system bars
                 if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API 35)
-                    LOG.d(LOG_TAG, "Applying API 35 compatibility changes");
                     WindowCompat.setDecorFitsSystemWindows(dialog.getWindow(), false);
                     
-                    // Set immersive flags for full screen experience
-                    int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-                    
-                    dialog.getWindow().getDecorView().setSystemUiVisibility(flags);
-                    
-                    // Set layout parameters for edge-to-edge
-                    WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-                    lp.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-                    dialog.getWindow().setAttributes(lp);
+                    // Ensure system bars remain visible on API 35+
+                    dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                    dialog.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
                 }
 
                 // Main container layout

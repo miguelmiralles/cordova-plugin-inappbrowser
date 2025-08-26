@@ -40,24 +40,13 @@ public class InAppBrowserDialog extends Dialog {
         super(context, theme);
         this.context = context;
         
-        // Android API 35 compatibility - Enable edge-to-edge and immersive mode
+        // Android API 35 compatibility - Ensure system bars remain visible
         if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API 35)
             WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
             
-            // Set immersive flags for full screen experience
-            int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            
-            getWindow().getDecorView().setSystemUiVisibility(flags);
-            
-            // Set layout parameters for edge-to-edge
-            WindowManager.LayoutParams lp = getWindow().getAttributes();
-            lp.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-            getWindow().setAttributes(lp);
+            // Ensure system bars remain visible on API 35+
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         }
     }
 

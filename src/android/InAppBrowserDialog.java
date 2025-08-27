@@ -21,6 +21,10 @@ package org.apache.cordova.inappbrowser;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Build;
+import android.view.View;
+import android.view.WindowManager;
+import androidx.core.view.WindowCompat;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +39,28 @@ public class InAppBrowserDialog extends Dialog {
     public InAppBrowserDialog(Context context, int theme) {
         super(context, theme);
         this.context = context;
+        
+        // Android API 35 compatibility - Ensure system bars remain visible
+        if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API 35)
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+            
+            // Ensure system bars remain visible on API 35+
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            
+            // Samsung devices need special handling for system bar visibility
+            boolean isSamsung = Build.MANUFACTURER.equalsIgnoreCase("samsung");
+            if (isSamsung) {
+                // Samsung One UI specific approach
+                getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                );
+                getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+            } else {
+                // Standard Android approach
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            }
+        }
     }
 
     public void setInAppBroswer(InAppBrowser browser) {

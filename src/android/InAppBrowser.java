@@ -1082,6 +1082,22 @@ public class InAppBrowser extends CordovaPlugin {
                 webViewLayout.addView(inAppWebView);
                 main.addView(webViewLayout);
 
+                // Add bottom padding for Android API 35 to avoid navigation bar overlap
+                if (Build.VERSION.SDK_INT >= 35) { // Android 15 (API 35)
+                    // Get actual navigation bar height
+                    int navigationBarHeight = 0;
+                    int resourceId = cordova.getActivity().getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+                    if (resourceId > 0) {
+                        navigationBarHeight = cordova.getActivity().getResources().getDimensionPixelSize(resourceId);
+                    }
+                    
+                    // Only apply padding if navigation bar height is detected
+                    if (navigationBarHeight > 0) {
+                        inAppWebView.setPadding(inAppWebView.getPaddingLeft(), inAppWebView.getPaddingTop(), 
+                                              inAppWebView.getPaddingRight(), navigationBarHeight);
+                    }
+                }
+
                 // Don't add the footer unless it's been enabled
                 if (showFooter) {
                     webViewLayout.addView(footer);

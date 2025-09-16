@@ -1093,8 +1093,8 @@ public class InAppBrowser extends CordovaPlugin {
                     
                     // Only apply padding if navigation bar height is detected
                     if (navigationBarHeight > 0) {
-                        inAppWebView.setPadding(inAppWebView.getPaddingLeft(), inAppWebView.getPaddingTop(), 
-                                              inAppWebView.getPaddingRight(), navigationBarHeight);
+                        // Add padding-bottom to webview layout to avoid navigation bar overlap
+                        webViewLayout.setPadding(0, 0, 0, navigationBarHeight);
                     }
                 }
 
